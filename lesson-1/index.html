@@ -1,0 +1,718 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Linear Search Code Builder · Y9 Searching</title>
+<style>
+/* Layout: Eltham workbook frame (navy band header, white section cards). Each task = a stack of
+   one-line build rows, then the whole program assembled underneath with braces added automatically. */
+:root{
+  --navy9:#0A1B2E;--navy7:#163351;--navy5:#2A5A8C;--navy1:#D7E3EF;
+  --gold5:#C89B3C;--gold3:#E3C783;--gold7:#8A6520;
+  --paper:#F7F8FA;--card:#FFFFFF;--ink:#1A1D21;--muted:#555D68;--line:#E3E8EF;--frame:#B9C3CF;
+  --ok:#1F7A4D;--okbg:#E6F4EC;--bad:#B3261E;--badbg:#FCE9E7;--warn:#8A5A00;--warnbg:#FDF1D9;
+  --code-bg:#0E2033;--code-fg:#E4EAF1;--code-dim:#5E7389;--code-kw:#6FB3F2;--code-str:#E8A17A;--code-num:#B5CEA8;--code-fn:#E7DB9B;--code-type:#5FD1BC;--code-brace:#C89B3C;
+  --display:Georgia,"Times New Roman",serif;
+  --body:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --mono:ui-monospace,"Cascadia Mono",Consolas,"SF Mono",Menlo,monospace;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+[hidden]{display:none!important}
+img{max-width:100%}
+body{background:var(--paper);color:var(--ink);font:16px/1.45 var(--body)}
+h1,h2,h3{font-family:var(--display);color:var(--navy9);font-weight:400;margin:0;text-wrap:balance}
+.wrap{max-width:1040px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 64px}
+header.top{background:var(--navy9);color:#fff;margin-bottom:22px}
+header.top .wrap{padding-block:22px 26px}
+.kicker{font-size:13px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gold3)}
+header.top h1{color:#fff;font-size:clamp(30px,5vw,44px);margin:6px 0 10px}
+header.top p{color:var(--navy1);margin:0;max-width:720px}
+.idrow{display:flex;flex-wrap:wrap;gap:12px;margin-top:16px;align-items:flex-end}
+.idrow label{display:flex;flex-direction:column;font-size:12px;font-weight:700;letter-spacing:.08em;color:var(--gold3)}
+.idrow input{margin-top:4px;padding:8px 10px;border-radius:8px;border:1px solid var(--navy5);background:var(--navy7);color:#fff;font:inherit;min-width:200px}
+.teacherbar{margin-top:14px;display:none;gap:10px;flex-wrap:wrap;align-items:center;background:var(--navy7);border:1px dashed var(--gold5);border-radius:10px;padding:8px 12px;color:var(--gold3);font-size:14px}
+body.teacher .teacherbar{display:flex}
+.teacherbar code{background:var(--navy9);color:#fff;padding:2px 8px;border-radius:6px;font-family:var(--mono)}
+
+section.act{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px 22px;margin-bottom:22px}
+section.act>header{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:10px}
+section.act>header h2{font-size:28px;margin-right:6px}
+.num{display:inline-block;width:30px;height:30px;border-radius:15px;background:var(--gold5);color:var(--navy9);text-align:center;line-height:30px;font-weight:700;font-size:15px}
+.pill{display:inline-block;font-size:12px;font-weight:700;letter-spacing:.06em;padding:4px 10px;border-radius:999px;background:var(--gold5);color:var(--navy9)}
+.pill.navy{background:var(--navy9);color:var(--gold3)}
+.pill.model{background:#E3EEFB;color:#2F6FD6}
+.badge{margin-left:auto;font-size:13px;font-weight:700;color:var(--muted)}
+.badge.done{color:var(--ok)}
+.howto{color:var(--muted);font-size:15px;margin:0 0 14px;max-width:70ch}
+.rules{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 16px}
+.rules span{font-size:13px;background:var(--warnbg);color:var(--warn);border-radius:8px;padding:5px 10px;font-weight:600}
+
+/* locked */
+.lockpanel{display:none}
+section.locked .lockpanel{display:flex;flex-wrap:wrap;gap:10px;align-items:center;background:var(--paper);border:2px dashed var(--frame);border-radius:10px;padding:14px}
+section.locked .lockpanel p{margin:0;flex-basis:100%;color:var(--muted)}
+section.locked .secbody{display:none}
+.lockpanel input{font:inherit;font-family:var(--mono);text-transform:uppercase;padding:8px 10px;border-radius:8px;border:1px solid var(--frame);width:140px}
+.lockmsg{color:var(--bad);font-weight:700;font-size:14px}
+
+/* build rows */
+.rows{display:flex;flex-direction:column;gap:8px}
+.row{display:grid;grid-template-columns:34px minmax(0,1fr);gap:10px;align-items:start;border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:var(--card);transition:background .15s,border-color .15s}
+.row .ln{width:30px;height:30px;border-radius:15px;background:var(--navy9);color:var(--gold3);font-weight:700;font-size:14px;display:flex;align-items:center;justify-content:center;font-variant-numeric:tabular-nums}
+.row .main{min-width:0;display:flex;flex-direction:column;gap:6px}
+.row .task{font-weight:600;color:var(--navy9)}
+.row .task code,.howto code,.fb code,.hintbox code{font-family:var(--mono);font-size:.92em;background:var(--paper);border:1px solid var(--line);border-radius:5px;padding:0 4px;color:var(--navy7)}
+.erl{font-family:var(--mono);font-size:13px;color:#1F4FA8;background:#EEF3FB;border-radius:6px;padding:3px 8px;align-self:flex-start;max-width:100%;overflow-x:auto;white-space:pre}
+.erl b{font-family:var(--body);font-size:11px;letter-spacing:.08em;color:var(--navy5);margin-right:6px}
+.entry{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.indent{font-family:var(--mono);color:var(--frame);font-size:14px;white-space:pre;user-select:none}
+.entry input{flex:1 1 280px;min-width:0;font-family:var(--mono);font-size:15px;padding:8px 10px;border-radius:8px;border:1.5px solid var(--frame);background:#FBFCFD;color:var(--ink)}
+.entry input:focus{outline:3px solid var(--gold3);outline-offset:1px;border-color:var(--navy5)}
+.entry input:disabled{background:var(--paper);color:var(--muted)}
+.row.right{background:var(--okbg);border-color:#BFE0CC}
+.row.right input{border-color:var(--ok);background:#fff}
+.row.wrong{background:var(--badbg);border-color:#F2C2BD}
+.row.wrong input{border-color:var(--bad)}
+.row.waiting{opacity:.55}
+.row.given{background:var(--paper)}
+.row.given .ln{background:var(--frame);color:#fff}
+.row.note{background:transparent;border-style:dashed;padding:6px 12px}
+.row.note .ln{background:transparent;color:var(--gold7)}
+.givencode{font-family:var(--mono);font-size:14px;color:var(--navy7);white-space:pre;overflow-x:auto}
+.givenlabel{font-size:12px;font-weight:700;letter-spacing:.06em;color:var(--muted);text-transform:uppercase}
+button.btn{font:inherit;font-weight:700;font-size:14px;border-radius:8px;padding:8px 14px;cursor:pointer;border:1px solid var(--navy9);background:var(--navy9);color:#fff}
+button.btn.ghost{background:#fff;color:var(--navy9)}
+button.btn.gold{background:var(--gold5);border-color:var(--gold5);color:var(--navy9)}
+button.btn.model{display:none;background:#E3EEFB;border-color:#2F6FD6;color:#2F6FD6}
+body.teacher button.btn.model{display:inline-block}
+button.btn:disabled{opacity:.45;cursor:default}
+button.btn:focus-visible{outline:3px solid var(--gold3);outline-offset:2px}
+.fb{font-size:15px;font-weight:600;min-height:0}
+.fb.good{color:var(--ok)}
+.fb.bad{color:var(--bad)}
+.fb.tip{color:var(--warn)}
+.hintbox{font-size:14px;color:var(--warn);background:var(--warnbg);border-radius:8px;padding:6px 10px}
+
+/* assembled program */
+.prog{margin-top:18px}
+.proghead{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin-bottom:8px}
+.proghead h3{font-size:20px}
+.legend{font-size:13px;color:var(--muted);display:flex;gap:14px;flex-wrap:wrap}
+.legend i{font-style:normal;font-family:var(--mono);font-weight:700}
+.code{background:var(--code-bg);color:var(--code-fg);border-radius:12px;padding:14px 0;overflow-x:auto;font-family:var(--mono);font-size:14.5px;line-height:1.6}
+.code .cl{display:flex;white-space:pre;padding:0 16px;min-width:max-content}
+.code .cl .src{white-space:pre}
+.code .cl .g{color:var(--code-dim);width:2.5em;text-align:right;margin-right:1.2em;flex:none;user-select:none}
+.code .cl.cur{background:rgba(200,155,60,.18);box-shadow:inset 4px 0 0 var(--gold5)}
+.code .ph{color:var(--code-dim);font-style:italic}
+.code .br{color:var(--code-brace);opacity:.85}
+.code .k{color:var(--code-kw)}.code .s{color:var(--code-str)}.code .n{color:var(--code-num)}.code .f{color:var(--code-fn)}.code .t{color:var(--code-type)}
+.donebar{display:none;margin-top:14px;background:var(--navy9);color:#fff;border-radius:12px;padding:14px 16px;gap:12px;flex-wrap:wrap;align-items:center}
+.donebar.on{display:flex}
+.donebar p{margin:0;color:var(--navy1);flex:1 1 260px}
+.donebar strong{color:var(--gold3)}
+.tryit{display:none;margin-top:12px;border:1px solid var(--line);border-radius:10px;padding:12px 14px;background:var(--paper)}
+.tryit.on{display:block}
+.tryit h3{font-family:var(--body);font-size:13px;font-weight:700;letter-spacing:.08em;color:var(--gold7);text-transform:uppercase;margin-bottom:8px}
+.tryrow{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.tryrow textarea{font-family:var(--mono);font-size:14px;padding:6px 8px;border-radius:8px;border:1px solid var(--frame);min-width:0;flex:0 1 260px;height:60px;resize:vertical}
+.console{font-family:var(--mono);font-size:14px;background:var(--code-bg);color:#7FD49B;border-radius:8px;padding:8px 12px;flex:1 1 220px;min-height:38px;white-space:pre-wrap}
+.unlockcode{flex-basis:100%;border-top:1px solid var(--navy5);padding-top:10px;color:var(--navy1);font-size:15px}
+.unlockcode b{font-family:var(--mono);font-size:18px;letter-spacing:.12em;color:var(--navy9);background:var(--gold3);padding:2px 10px;border-radius:6px;margin-left:6px}
+details.trace{margin-top:14px;border:1px solid var(--line);border-radius:10px;background:var(--card)}
+details.trace summary{cursor:pointer;padding:12px 14px;font-weight:700;color:var(--navy9);display:flex;gap:10px;align-items:center;flex-wrap:wrap;list-style:none}
+details.trace summary::-webkit-details-marker{display:none}
+details.trace summary::before{content:"▸";color:var(--gold5);transition:transform .15s}
+details.trace[open] summary::before{transform:rotate(90deg)}
+details.trace summary .pill{margin-left:0}
+.tbadge{margin-left:auto;font-size:13px;font-weight:700;color:var(--muted)}
+.tbadge.done{color:var(--ok)}
+.pill.must{background:var(--bad);color:#fff;border-color:var(--bad)}
+input.givencell{background:var(--paper)!important;color:var(--muted)}
+.tbody{padding:0 14px 14px;display:flex;flex-direction:column;gap:10px}
+.tdata{font-family:var(--mono);font-size:14px;background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:6px 10px;align-self:flex-start;max-width:100%;overflow-x:auto;white-space:pre}
+.tscroll{overflow-x:auto}
+table.tt{border-collapse:collapse;min-width:100%;font-variant-numeric:tabular-nums}
+table.tt th{background:var(--navy9);color:#fff;font-family:var(--mono);font-weight:600;font-size:14px;padding:7px 10px;text-align:center;white-space:nowrap}
+table.tt td{border:1px solid var(--line);padding:4px}
+table.tt input{width:100%;min-width:64px;font-family:var(--mono);font-size:15px;text-align:center;padding:6px;border-radius:6px;border:1.5px solid var(--frame);background:#FBFCFD;color:var(--ink)}
+table.tt input:focus{outline:3px solid var(--gold3);outline-offset:0}
+table.tt input.right{border-color:var(--ok);background:var(--okbg)}
+table.tt input.wrong{border-color:var(--bad);background:var(--badbg)}
+.tout{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.tout label{font-weight:700;color:var(--navy9);font-size:14px}
+.tout input{font-family:var(--mono);font-size:15px;padding:6px 8px;border-radius:6px;border:1.5px solid var(--frame);flex:0 1 240px;min-width:0}
+.tout input.right{border-color:var(--ok);background:var(--okbg)}
+.tout input.wrong{border-color:var(--bad);background:var(--badbg)}
+.status{font-size:13px;color:var(--muted);margin-top:24px;display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+@media (max-width:640px){
+  section.act{padding:16px 12px}
+  section.act>header h2{font-size:23px}
+  .row{grid-template-columns:28px minmax(0,1fr);padding:8px}
+  .row .ln{width:26px;height:26px;font-size:13px}
+  .indent{display:none}
+}
+/* route chooser + brief (house style from Y10 L2 2.3) */
+.routes{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.route{display:flex;flex-direction:column;gap:6px;text-align:left;font:inherit;color:inherit;background:var(--card);border:2px solid var(--line);border-radius:14px;padding:16px 18px;cursor:pointer}
+.route:hover,.route:focus-visible{border-color:var(--navy5);outline:none;box-shadow:0 0 0 3px var(--gold3)}
+.route.on{border-color:var(--gold5);background:#FFFBF1}
+.route .rk{font-size:12px;font-weight:700;letter-spacing:.08em;color:var(--gold7)}
+.route .rt{font-family:var(--display);font-size:22px;color:var(--navy9)}
+.route .rd{color:var(--muted);font-size:15px}
+section.act.off{display:none}
+body.teacher section.act.off{display:block}
+h3.sub{font-size:20px;margin:18px 0 8px}
+h3.sub .mini{font-family:var(--body);font-size:13px;color:var(--muted);margin-left:8px}
+.twocol{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px}
+@media (max-width:720px){.twocol{grid-template-columns:1fr}}
+.console.sample{color:#E4EAF1;font-size:14px;line-height:1.5;white-space:pre;min-height:0}
+ol.steps{margin:0;padding-left:22px;display:flex;flex-direction:column;gap:8px}
+ol.steps code,.reqs code,ul.ext code{font-family:var(--mono);font-size:.92em;background:var(--paper);border:1px solid var(--line);border-radius:5px;padding:0 4px;color:var(--navy7)}
+.reqs{display:flex;flex-direction:column;gap:6px}
+.req{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:10px;padding:9px 12px;cursor:pointer}
+.req input{width:20px;height:20px;margin-top:1px;accent-color:var(--ok);flex:none}
+.req:has(input:checked){background:var(--okbg);border-color:#BFE0CC}
+.req b{color:var(--gold7);margin-right:4px}
+.code.small{font-size:13.5px;padding:10px 0}
+table.plan td{padding:6px 8px;font-size:14px}
+table.plan input{text-align:left}
+.switch{font-size:14px;color:var(--muted);margin-top:10px}
+.switch button{font:inherit;color:var(--navy5);background:none;border:0;text-decoration:underline;cursor:pointer;padding:0}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<header class="top"><div class="wrap">
+  <div class="kicker">Year 9 · Computer Science · Searching · Linear search</div>
+  <h1>Linear Search Code Builder</h1>
+  <p>Task 4 from today's lesson: code a linear search in C#. <b>You choose the route.</b> Route A builds it one line at a time with checks and hints. Route B gives you a brief and you write it yourself. Everyone finishes with the same two trace tables, and they are compulsory.</p>
+  <div class="idrow">
+    <label>NAME<input id="who" type="text" autocomplete="off" placeholder="First name and surname"></label>
+    <label>CLASS<input id="cls" type="text" autocomplete="off" placeholder="9G"></label>
+  </div>
+  <div class="teacherbar" id="teacherbar">Teacher mode: both routes are shown. Use ▶ Model to type a line live. Trace answers: A (23) → 4 rows, Found at index 3 · B (50) → 6 rows, Not found.</div>
+</div></header>
+
+<main class="wrap" id="app"></main>
+
+<script>
+/* ============================================================ helpers */
+const KW = new Set("using class static void int bool string double for if else return new true false while".split(" "));
+
+const $ = (s, el = document) => el.querySelector(s), $$ = (s, el = document) => [...el.querySelectorAll(s)];
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const KEY = "y9-linear-builder-v1";
+let S; try { S = JSON.parse(localStorage.getItem(KEY) || "{}"); } catch (e) { S = {}; }
+S.ans = S.ans || {}; S.unlocked = S.unlocked || ["1"]; S.tries = S.tries || {};
+let saveT; function save(){ clearTimeout(saveT); saveT = setTimeout(() => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }, 150); }
+const TEACHER = /(^|[#?&])teacher\b/.test(location.hash + location.search);
+if (TEACHER) document.body.classList.add("teacher");
+
+/* unlock codes are stored hashed */
+const LOCKS = {};
+const NEXTCODE = {};
+function lhashRaw(s){ let x = 0x811c9dc5; for (const ch of "y10ls:" + s){ x ^= ch.charCodeAt(0); x = Math.imul(x, 0x01000193) >>> 0; } return x.toString(16).padStart(8, "0"); }
+
+/* ============================================================ tokeniser */
+const OPS = ["==","!=","<=",">=","++","--","&&","||","+=","-=","*=","/="];
+function tokens(src){
+  const out = []; let i = 0;
+  while (i < src.length){
+    const c = src[i];
+    if (/\s/.test(c)){ i++; continue; }
+    if (c === '"' || c === "'"){ let j = i + 1; while (j < src.length && src[j] !== c){ if (src[j] === "\\") j++; j++; } out.push({v: src.slice(i, j + 1), str: true, closed: j < src.length}); i = j + 1; continue; }
+    if (/[A-Za-z_]/.test(c)){ let j = i; while (j < src.length && /[A-Za-z0-9_]/.test(src[j])) j++; out.push({v: src.slice(i, j), id: true}); i = j; continue; }
+    if (/[0-9]/.test(c)){ let j = i; while (j < src.length && /[0-9.]/.test(src[j])) j++; out.push({v: src.slice(i, j), num: true}); i = j; continue; }
+    const two = src.slice(i, i + 2);
+    if (OPS.includes(two)){ out.push({v: two}); i += 2; continue; }
+    out.push({v: c}); i++;
+  }
+  return out;
+}
+const tv = ts => ts.map(t => t.v);
+const same = (a, b) => a.length === b.length && a.every((x, i) => x === b[i]);
+/* ============================================================ checker */
+function stripBraces(raw){
+  let s = raw.trim(), braces = false;
+  if (/^\}/.test(s)){ s = s.replace(/^\}\s*/, ""); braces = true; }
+  if (/\{\s*$/.test(s)){ s = s.replace(/\s*\{\s*$/, ""); braces = true; }
+  return {s, braces};
+}
+/* the accepted version a correct answer matches, so the program shows it neatly spaced */
+function matched(line, raw){
+  const V = tv(tokens(stripBraces(raw).s));
+  return [line.code, ...(line.alt || [])].find(c => same(V, tv(tokens(c)))) || line.code;
+}
+function count(ts, ch){ return ts.filter(t => t.v === ch).length; }
+
+function check(line, raw){
+  const {s, braces} = stripBraces(raw);
+  const tip = braces ? " (No need to type { or } for a block: they are added for you.)" : "";
+  if (!s) return {ok:false, msg: braces ? "Leave the curly brackets out: type just the line of code." : "Type the line of code into the box first."};
+  const T = tokens(s), V = tv(T);
+  const targets = [line.code, ...(line.alt || [])].map(c => tv(tokens(c)));
+  if (targets.some(t => same(V, t))) return {ok:true, msg: "✓ Correct." + tip};
+  const E = targets[0], ET = tokens(line.code);
+
+  // 1. capital letters
+  const lowerHit = targets.find(t => same(V.map(x => x.toLowerCase()), t.map(x => x.toLowerCase())));
+  if (lowerHit){
+    const i = V.findIndex((x, k) => x !== lowerHit[k]);
+    return {ok:false, msg:`C# is case-sensitive. Write <code>${esc(lowerHit[i])}</code>, not <code>${esc(V[i])}</code>.` + tip};
+  }
+  // 2. line-specific mistakes the class often makes
+  for (const [re, m] of (line.checks || [])) if (re.test(s)) return {ok:false, msg: m + tip};
+  // 3. unclosed text
+  const bad = T.find(t => t.str && !t.closed);
+  if (bad) return {ok:false, msg:`Your text is missing its closing quote mark <code>"</code>.` + tip};
+  // 4. brackets that do not pair up
+  for (const [o, c, name] of [["(", ")", "round brackets ( )"], ["[", "]", "square brackets [ ]"]]){
+    if (count(T, o) !== count(T, c)) return {ok:false, msg:`Your ${name} do not pair up: you have ${count(T, o)} <code>${o}</code> and ${count(T, c)} <code>${c}</code>.` + tip};
+  }
+  // 5. semicolons
+  const wantSemi = E[E.length - 1] === ";", hasSemi = V[V.length - 1] === ";";
+  if (wantSemi && !hasSemi && same([...V, ";"], E)) return {ok:false, msg:"Nearly. This line needs a semicolon <code>;</code> at the end." + tip};
+  if (wantSemi && !hasSemi) { /* keep looking for a more useful message, then remind */ }
+  if (!wantSemi && hasSemi) return {ok:false, msg:`Do not put <code>;</code> at the end of this line. A <code>;</code> after ${esc(E[0])} ends it before its block starts.` + tip};
+  // 6. = instead of ==
+  if (E.includes("==") && !V.includes("==") && V.includes("=")) return {ok:false, msg:"To compare two values use <code>==</code>. A single <code>=</code> stores a value." + tip};
+  // 7. wrong text in quotes
+  const es = ET.filter(t => t.str).map(t => t.v), ss = T.filter(t => t.str).map(t => t.v);
+  if (es.length && ss.length && es.join() !== ss.join()) return {ok:false, msg:`The text in quotes must be exactly <code>${esc(es.join(" and "))}</code>: check spelling, capitals and spaces.` + tip};
+  // 8. text without quote marks
+  const qi = ET.findIndex(t => t.str);
+  if (qi >= 0 && !T.some(t => t.str) && V.some(v => ET[qi].v.slice(1, -1).split(" ")[0] === v)) return {ok:false, msg:`Text that is printed must go inside quote marks: <code>${esc(ET[qi].v)}</code>.` + tip};
+  // 9. first difference
+  const best = targets.reduce((b, t) => { const k = firstDiff(V, t); return k > b.k ? {k, t} : b; }, {k:-1, t:E});
+  const i = best.k, want = best.t;
+  if (i >= V.length) return {ok:false, msg: wantSemi && !hasSemi && V.length === want.length - 1 ? "Nearly. This line needs a semicolon <code>;</code> at the end." + tip : `Your line stops too early. Next it needs <code>${esc(want[i])}</code>.` + tip};
+  if (i >= want.length) return {ok:false, msg:`There is something extra at the end: <code>${esc(V.slice(i).join(" "))}</code>. Take it out.` + tip};
+  const after = i ? ` after <code>${esc(want.slice(Math.max(0, i - 2), i).join(" "))}</code>` : " at the start";
+  if (/^[A-Za-z_]/.test(want[i]) && /^[A-Za-z_]/.test(V[i])) return {ok:false, msg:`Check the word${after}: the instruction needs <code>${esc(want[i])}</code>, you wrote <code>${esc(V[i])}</code>.` + tip};
+  if (want.slice(i + 1).length && same(V.slice(i), want.slice(i + 1))) return {ok:false, msg:`Something is missing${after}: add <code>${esc(want[i])}</code>.` + tip};
+  return {ok:false, msg:`Look${after}: it should be <code>${esc(want[i])}</code>, you have <code>${esc(V[i])}</code>.` + tip};
+}
+function firstDiff(a, b){ let i = 0; while (i < a.length && i < b.length && a[i] === b[i]) i++; return i; }
+
+/* ============================================================ task data
+   kind: given (shown, not typed) · note (ERL line that becomes a brace) · line (student types it)
+   d = indent depth: 0 class level, 1 inside class, 2 inside Main, … braces come from depth changes */
+const COMMON = {
+  forI: arr => [`for (int i = 0; i < ${arr}.Length; i++)`, [`for (int i = 0; i < ${arr}.Length; i += 1)`, `for (int i = 0; i < ${arr}.Length; i = i + 1)`, `for (int i = 0; i < ${arr}.Length; ++i)`, `for (int i = 0; i <= ${arr}.Length - 1; i++)`]],
+  forChecks: arr => [
+    [new RegExp(`<=\\s*${arr}\\.Length\\s*[;)]`), `<code>&lt;=</code> runs one step too far: the last index is <code>${arr}.Length - 1</code>. Use <code>&lt;</code>.`],
+    [new RegExp(`${arr}\\.Length\\s*\\(`), `<code>Length</code> has no brackets in C#: write <code>${arr}.Length</code>.`],
+    [/i\s*<\s*\d/, `Use <code>${arr}.Length</code> instead of a number, so the loop still works if the list changes.`],
+    [/^for\s*\(\s*i\s*=/, `Declare the counter inside the loop: <code>int i = 0</code>.`],
+    [/;\s*\)\s*$/, `There should be no <code>;</code> before the closing <code>)</code>.`]
+  ],
+  readInt: name => [[new RegExp(`^int\\s+${name}\\s*=\\s*Console\\.ReadLine`, "i"), "<code>Console.ReadLine()</code> gives you text (a string). Wrap it in <code>Convert.ToInt32( )</code> to turn it into an int."],
+                    [new RegExp(`^${name}\\s*=`), `This is a new variable, so start with its type: <code>int ${name} = …</code>`],
+                    [/Convert\.ToInt32\s*\(\s*Console\.ReadLine\s*\(\s*\)\s*;?$/, "Close <code>Convert.ToInt32(</code> as well: the line ends <code>ReadLine());</code>"],
+                    [/int\.Parse/, "<code>int.Parse</code> works too, but in Year 9 we use <code>Convert.ToInt32( … )</code>."]],
+  print: [[/^print\s*\(/i, "<code>print</code> is ERL (and Python). In C# use <code>Console.WriteLine( … );</code>"], [/Console\.Write\s*\(/, "Use <code>Console.WriteLine</code> so the output ends with a new line."]]
+};
+
+const TASKS = [
+ { n:4, id:"t4", title:"Route A · Build it line by line", pills:[["★★",""],["SCAFFOLDED","model"]],
+   howto:"Read each instruction, type exactly that line, then press Enter. The program reads a number and prints the <b>index</b> where it is in <code>scores</code>, or <code>Not found</code>. It stops at the first match, just like our volunteers. When every line is right, do <b>both</b> trace tables at the bottom of the page.",
+   rows:[
+    {k:"given", d:0, code:"using System;"},
+    {k:"blank"},
+    {k:"given", d:0, code:"class Program"},
+    {k:"given", d:1, code:"static void Main()"},
+    {k:"line", d:2, code:"int[] scores = {12, 45, 7, 23, 56, 9};",
+      task:"Create an <code>int</code> array called <code>scores</code> that holds 12, 45, 7, 23, 56, 9 (in that order).",
+      hint:"Pattern: <code>int[] name = {value, value, …};</code>",
+      checks:[[/^int\s+scores\s*=/, "<code>scores</code> holds many numbers, so its type is <code>int[]</code> (an array), not <code>int</code>."],
+              [/=\s*\[/, "C# puts the values of an array in curly brackets <code>{ }</code>, not <code>[ ]</code>. (This is the one place you type them.)"]]},
+    {k:"line", d:2, code:"int target = Convert.ToInt32(Console.ReadLine());",
+      task:"Read a whole number typed on the keyboard and store it in an <code>int</code> variable called <code>target</code>.",
+      hint:"<code>Console.ReadLine()</code> gives text. <code>Convert.ToInt32( … )</code> turns text into a whole number.",
+      checks:COMMON.readInt("target")},
+    {k:"line", d:2, code:"int position = -1;",
+      task:"Create an <code>int</code> variable called <code>position</code> and set it to <code>-1</code> (not found yet).",
+      hint:"Pattern: <code>int name = value;</code> &nbsp;-1 means \"not found yet\" because it can never be a real index.",
+      checks:[[/^int\s+position\s*=\s*0\s*;?$/, "0 is a real index (the first item). Use <code>-1</code> to mean \"not found yet\"."],
+              [/^bool\s+/, "We are storing <b>where</b> it is, not just whether it is there, so <code>position</code> is an <code>int</code>."]]},
+    {k:"line", d:2, code:COMMON.forI("scores")[0], alt:COMMON.forI("scores")[1],
+      task:"Start a <code>for</code> loop. The counter <code>i</code> starts at 0, the loop keeps going while <code>i &lt; scores.Length</code>, and <code>i</code> goes up by 1 each time (<code>i++</code>).",
+      hint:"Pattern: <code>for (int i = 0; i &lt; ????.Length; i++)</code>",
+      checks:COMMON.forChecks("scores")},
+    {k:"line", d:3, code:"if (scores[i] == target)",
+      task:"Inside the loop: <b>if</b> the item at index <code>i</code> of <code>scores</code> is equal to <code>target</code>…",
+      hint:"Index with square brackets: <code>scores[i]</code>. Compare with <code>==</code>.",
+      checks:[[/scores\s*\(\s*i\s*\)/, "Use square brackets to get an item from an array: <code>scores[i]</code>."], [/^if\s+[^(]/, "The condition goes in round brackets: <code>if ( … )</code>"]]},
+    {k:"line", d:4, code:"position = i;",
+      task:"…store <code>i</code> in <code>position</code>…",
+      hint:"<code>position</code> already exists, so no type at the start.",
+      checks:[[/^int\s+position/, "<code>position</code> already exists. Don't write <code>int</code> again, just give it a new value: <code>position = i;</code>"], [/==/, "Here you are storing a value, so use one <code>=</code>."], [/^i\s*=\s*position/, "The other way round: the value on the right is stored in the variable on the left. Store <code>i</code> in <code>position</code>."]]},
+    {k:"line", d:4, code:"break;",
+      task:"…and <b>stop</b> the loop. (Our volunteers stopped at the first match.)",
+      hint:"One word and a semicolon. It means \"Stop.\"",
+      checks:[[/^stop/i, "C# has no <code>stop</code>. The word that ends a loop early is <code>break</code>."], [/^return/, "<code>return</code> would end the whole program. To leave just the loop, use <code>break;</code>"]]},
+    {k:"line", d:2, code:"if (position == -1)",
+      task:"After the loop has finished: <b>if</b> <code>position</code> is still <code>-1</code>…",
+      hint:"Compare with <code>==</code>. Decide \"not found\" only <b>after</b> the loop has checked everything."},
+    {k:"line", d:3, code:"Console.WriteLine(\"Not found\");",
+      task:"…print <code>Not found</code>.", hint:"Capital N, small f, one space.", checks:COMMON.print},
+    {k:"line", d:2, code:"else",
+      task:"<b>Otherwise</b>…", hint:"Just one word.",
+      checks:[[/else\s*if/, "Just <code>else</code> on its own here: no condition needed."]]},
+    {k:"line", d:3, code:"Console.WriteLine(\"Found at index \" + position);",
+      task:"…print <code>Found at index </code> followed by <code>position</code>. Note the space before the closing quote.",
+      hint:"Join text and a variable with <code>+</code>.",
+      checks:[[/"Found at index"\s*\+/, "Add a space before the closing quote: <code>\"Found at index \"</code>. Otherwise it prints <code>Found at index3</code>."], [/"position"/, "<code>position</code> is a variable, so no quote marks round it."], ...COMMON.print]}
+   ],
+   run(inputs){ const t = parseInt(inputs[0]); if (isNaN(t) || !/^\s*-?\d+\s*$/.test(inputs[0])) return "Error: Convert.ToInt32 needs a whole number"; const i = [12,45,7,23,56,9].indexOf(t); return i === -1 ? "Not found" : "Found at index " + i; },
+   sample:"23",
+   traces:[
+    {name:"Trace A · input 23", data:"scores = {12, 45, 7, 23, 56, 9}   ·   input: 23",
+     note:"One row per pass of the for loop. Stop when the loop stops. Row 1 is done for you.",
+     cols:["i","scores[i]","scores[i] == target","position"],
+     rows:[["0","12","False","-1"],["1","45","False","-1"],["2","7","False","-1"],["3","23","True","3"]],
+     given:[0],
+     output:"Found at index 3"},
+    {name:"Trace B · input 50", data:"scores = {12, 45, 7, 23, 56, 9}   ·   input: 50",
+     note:"One row per pass of the for loop. Stop when the loop stops.",
+     cols:["i","scores[i]","scores[i] == target","position"],
+     rows:[["0","12","False","-1"],["1","45","False","-1"],["2","7","False","-1"],["3","23","False","-1"],["4","56","False","-1"],["5","9","False","-1"]],
+     output:"Not found"}
+   ],
+   spare:2
+ }
+];
+
+/* ============================================================ build page */
+const app = $("#app");
+const PROGRAMIZ = "https://www.programiz.com/csharp-programming/online-compiler/";
+const B_REQS = [
+  "An <code>int</code> array called <code>scores</code> holds 12, 45, 7, 23, 56, 9 (in that order).",
+  "The program reads a whole number from the keyboard into an <code>int</code> called <code>target</code>.",
+  "A <code>for</code> loop checks each item in order, starting at index 0.",
+  "It stops at the <b>first</b> match and remembers the index where it found it.",
+  "After the loop it prints <code>Found at index n</code> or <code>Not found</code>, and only <b>once</b>.",
+  "No functions: all of your code goes inside <code>Main</code>."
+];
+const B_TESTS = [["23", "Found at index 3"], ["50", "Not found"], ["12 (first item)", "Found at index 0"], ["9 (last item)", "Found at index 5"], ["", ""]];
+app.insertAdjacentHTML("beforeend", `<section class="act" id="route"><header><span class="num">4</span><h2>Task 4 · Code a linear search</h2><span class="pill">SHOULD</span><span class="pill must">TRACE = COMPULSORY</span><span class="badge" id="badge-route"></span></header>
+  <div class="secbody"><p class="howto">Pick your route. You can switch at any time. Both routes finish with the same two trace tables.</p>
+  <div class="routes">
+    <button class="route" type="button" data-route="A"><span class="rk">ROUTE A · ★★ · SCAFFOLDED</span><span class="rt">Build it line by line</span><span class="rd">11 instructions in plain English. Each line is checked as you go, and there's a hint if you get stuck.</span></button>
+    <button class="route" type="button" data-route="B"><span class="rk">ROUTE B · ★★★ · NOT SCAFFOLDED</span><span class="rt">Write it yourself</span><span class="rd">A brief, a requirements checklist and a test plan. No line-by-line steps: you write it.</span></button>
+  </div></div></section>`);
+TASKS.forEach(T => {
+  T.lines = T.rows.filter(r => r.k === "line");
+  T.lines.forEach((r, i) => { r.key = `${T.id}-${i}`; r.no = i + 1; });
+  const sec = document.createElement("section");
+  sec.className = "act"; sec.id = T.id; sec.dataset.n = T.n;
+  sec.innerHTML = `<header><span class="num">${T.n}</span><h2>${esc(T.title)}</h2>${T.pills.map(([p, c]) => `<span class="pill ${c}">${p}</span>`).join("")}<span class="badge" id="badge-${T.id}"></span></header>
+    <div class="secbody">
+      <p class="howto">${T.howto}</p>
+      <div class="rules"><span>Type one line per box</span><span>Press Enter to check</span><span>No { } for blocks</span><span>Capital letters matter</span></div>
+      <div class="rows"></div>
+      <div class="prog">
+        <div class="proghead"><h3>Your whole program</h3><div class="legend"><span><i style="color:var(--gold5)">{ }</i> added for you</span><span><i style="color:var(--muted)">//</i> still to write</span></div></div>
+        <div class="code" id="code-${T.id}-view" aria-live="polite"></div>
+        <div class="donebar" id="done-${T.id}"><p><strong>Program built.</strong> Copy it into CodeBash task <b>C# · Linear Search: Is It There?</b> (Year 9 Programming › Extensions), press Run Tests, then Submit. Then complete <b>both</b> trace tables at the bottom of the page: Task 4 is not finished until they are right. Finished? Try the ★★★ task <b>C# · Linear Search: Count the Comparisons</b>.</p><button class="btn gold" type="button" data-copy="${T.id}">Copy code</button><div class="unlockcode" id="fin-${T.id}">Trace tables still to do.</div></div>
+        <div class="tryit" id="try-${T.id}"><h3>Try it here first</h3><div class="tryrow"><textarea id="try-in-${T.id}" aria-label="Input for ${esc(T.title)}">${esc(T.sample)}</textarea><button class="btn ghost" type="button" data-run="${T.id}">▶ Run</button><div class="console" id="out-${T.id}" aria-live="polite"></div></div></div>
+      </div>
+    </div>`;
+  app.appendChild(sec);
+  const box = $(".rows", sec);
+  T.rows.forEach(r => {
+    if (r.k === "blank") return;
+    const div = document.createElement("div");
+    const pad = "··".repeat(Math.max(0, r.d - 2));
+    if (r.k === "given"){
+      div.className = "row given";
+      div.innerHTML = `<span class="ln" aria-hidden="true">✓</span><div class="main"><span class="givenlabel">Given${r.label ? " · " + esc(r.label) : ""}</span><div class="givencode">${esc(r.code)}</div></div>`;
+    } else if (r.k === "note"){
+      div.className = "row note";
+      div.innerHTML = `<span class="ln" aria-hidden="true">↳</span><div class="main"><div class="erl"><b>ERL</b>${esc(r.erl)}</div><span class="fb tip">${r.text}</span></div>`;
+    } else {
+      div.className = "row"; div.id = "row-" + r.key;
+      div.innerHTML = `<span class="ln">${r.no}</span><div class="main">
+        <div class="task">${r.task}</div>
+        ${r.erl ? `<div class="erl"><b>ERL</b>${esc(r.erl)}</div>` : ""}
+        <div class="entry"><span class="indent" aria-hidden="true">${pad}</span><input type="text" id="in-${r.key}" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" aria-label="Line ${r.no}" placeholder="type line ${r.no} here">
+        <button class="btn" type="button" data-check="${r.key}">Check</button>
+        <button class="btn ghost" type="button" data-hint="${r.key}" ${r.hint ? "" : "hidden"}>Hint</button>
+        <button class="btn model" type="button" data-model="${r.key}">▶ Model</button></div>
+        <div class="hintbox" id="hint-${r.key}" hidden>${r.hint || ""}</div>
+        <div class="fb" id="fb-${r.key}" aria-live="polite"></div></div>`;
+    }
+    box.appendChild(div);
+  });
+
+  // lock panel
+  if (false){
+    const p = $(".lockpanel", sec), inp = $("input", p), msg = $(".lockmsg", p);
+    const go = () => {
+      const prev = TASKS[T.n - 2];
+      if (!taskDone(prev)){ msg.textContent = `Finish Task ${prev.title.split(" ")[0]} first.`; return; }
+      if (lhashRaw(inp.value.trim().toUpperCase()) === LOCKS[T.n]){ if (!S.unlocked.includes(String(T.n))) S.unlocked.push(String(T.n)); save(); renderAll(); sec.scrollIntoView({behavior:"smooth", block:"start"}); }
+      else msg.textContent = "That code isn't right. Check the board.";
+    };
+    $("button", p).addEventListener("click", go);
+    inp.addEventListener("keydown", e => { if (e.key === "Enter") go(); });
+  }
+});
+
+app.insertAdjacentHTML("beforeend", `<section class="act brief" id="tB"><header><span class="num">B</span><h2>Route B · Write it yourself</h2><span class="pill">★★★</span><span class="pill navy">NOT SCAFFOLDED</span><span class="badge" id="badge-tB"></span></header>
+  <div class="secbody">
+    <p class="howto">Write a program that searches <code>scores</code> for a number the user types in. It is the same linear search we did with the volunteers: check each item in order, stop at the first match. Use the code from today's lesson as your model, but write every line yourself.</p>
+    <div class="twocol">
+      <div><h3 class="sub">What the user sees</h3><div class="console sample">23\nFound at index 3</div><div style="height:8px"></div><div class="console sample">50\nNot found</div></div>
+      <div><h3 class="sub">Before you code</h3><ol class="steps"><li>Plan it in your book: write the steps in plain English first.</li><li>Open your C# editor, or the <a href="${PROGRAMIZ}" target="_blank" rel="noopener">Programiz C# compiler</a>.</li><li>Build it one requirement at a time, running after each one.</li><li>Fill in the test plan.</li><li>Done? Paste it into CodeBash task <b>C# · Linear Search: Is It There?</b> (Year 9 Programming › Extensions), press Run Tests, then Submit.</li><li>Do both trace tables at the bottom of the page.</li><li>Finished? Try the ★★★ task <b>C# · Linear Search: Count the Comparisons</b>.</li></ol></div>
+    </div>
+    <h3 class="sub">Requirements <span class="mini">tick each one off when it works</span></h3>
+    <div class="reqs">${B_REQS.map((r, i) => `<label class="req"><input type="checkbox" data-req="${i}"><span><b>R${i + 1}</b> ${r}</span></label>`).join("")}</div>
+    <details class="trace"><summary>Stuck? Toolbox <span class="pill navy">SYNTAX ONLY</span></summary><div class="tbody">
+      <p class="howto" style="margin:0">The pieces of C# you need. How you put them together is up to you.</p>
+      <div class="code small">${["// read a whole number typed by the user", "Convert.ToInt32(Console.ReadLine())", "", "// how many items are in an array", "scores.Length", "", "// get the item at index i", "scores[i]", "", "// leave a loop straight away", "break;", "", "// -1 can never be a real index, so it can mean \"not found yet\""].map(l => `<div class="cl"><span class="src">${l ? hl(l) : " "}</span></div>`).join("")}</div>
+    </div></details>
+    <h3 class="sub">Test plan <span class="mini">run each test and fill in the Actual column</span></h3>
+    <div class="tscroll"><table class="tt plan"><thead><tr><th>Input</th><th>Expected</th><th>Actual</th></tr></thead><tbody>
+    ${B_TESTS.map(([t, e], i) => `<tr><td>${t ? esc(t) : `<input type="text" data-bt="${i}-t" placeholder="your own test">`}</td><td>${e ? esc(e) : `<input type="text" data-bt="${i}-e">`}</td><td><input type="text" data-bt="${i}-a"></td></tr>`).join("")}
+    </tbody></table></div>
+    <p class="switch">Really stuck? <button type="button" data-route="A">Switch to Route A</button>. Your trace tables stay as they are.</p>
+  </div></section>`);
+app.insertAdjacentHTML("beforeend", `<section class="act" id="traces"><header><span class="num">✓</span><h2>Trace your program</h2><span class="pill must">COMPULSORY · BOTH ROUTES</span><span class="badge" id="badge-traces"></span></header><div class="secbody">${TASKS.map(traceHtml).join("")}</div></section>`);
+
+/* ============================================================ state + render */
+const findLine = key => { for (const T of TASKS) for (const r of T.lines) if (r.key === key) return [T, r]; };
+const isRight = r => S.ans[r.key] && check(r, S.ans[r.key]).ok;
+const taskDone = T => T.lines.every(isRight);
+const isOpen = T => true;
+
+function renderTask(T){
+  const sec = $("#" + T.id), open = isOpen(T);
+  sec.classList.toggle("locked", !open);
+  let firstOpen = -1;
+  T.lines.forEach((r, i) => {
+    const row = $("#row-" + r.key), inp = $("#in-" + r.key), ok = isRight(r);
+    if (document.activeElement !== inp) inp.value = S.ans[r.key] || "";
+    const reachable = i === 0 || isRight(T.lines[i - 1]) || ok;
+    if (!ok && firstOpen < 0 && reachable) firstOpen = i;
+    row.classList.toggle("waiting", !reachable);
+    inp.disabled = !reachable;
+    $(`[data-check="${r.key}"]`).disabled = !reachable;
+    row.classList.toggle("right", ok);
+    if (ok) row.classList.remove("wrong");
+  });
+  const done = taskDone(T);
+  const b = $("#badge-" + T.id), got = T.lines.filter(isRight).length;
+  b.textContent = done ? "✓ Program built" : `${got} of ${T.lines.length} lines`;
+  b.className = "badge" + (done ? " done" : "");
+  const fin = $("#fin-" + T.id); if (fin) fin.innerHTML = tracesDone(T) ? "✓ Both trace tables right. Task 4 complete. Well done." : "Trace tables still to do (compulsory).";
+  renderRoute();
+  $("#done-" + T.id).classList.toggle("on", done);
+  $("#try-" + T.id).classList.toggle("on", done);
+  renderCode(T, firstOpen);
+}
+function renderAll(){ TASKS.forEach(T => { renderTask(T); renderTrace(T); }); renderRoute(); }
+/* route choice */
+function bReqsDone(){ return B_REQS.every((_, i) => (S.breq || {})[i]); }
+function renderRoute(){
+  const r = S.route || "";
+  $$("[data-route]").forEach(b => b.classList.toggle("on", b.dataset.route === r && b.classList.contains("route")));
+  $("#t4").classList.toggle("off", r !== "A");
+  $("#tB").classList.toggle("off", r !== "B");
+  $("#traces").classList.toggle("off", !r);
+  const T = TASKS[0], tr = tracesDone(T), built = r === "A" ? taskDone(T) : r === "B" ? bReqsDone() : false;
+  const ticks = B_REQS.filter((_, i) => (S.breq || {})[i]).length;
+  const bB = $("#badge-tB"); bB.textContent = `${ticks} of ${B_REQS.length} requirements`; bB.className = "badge" + (ticks === B_REQS.length ? " done" : "");
+  const bt = $("#badge-traces"); bt.textContent = tr ? "✓ Both traces right" : "Not finished"; bt.className = "badge" + (tr ? " done" : "");
+  const b = $("#badge-route"); b.textContent = !r ? "Choose a route" : built && tr ? "✓ Complete" : built ? "Program done · traces next" : `Route ${r} in progress`; b.className = "badge" + (built && tr ? " done" : "");
+}
+document.addEventListener("click", e => {
+  const rb = e.target.closest("[data-route]"); if (!rb) return;
+  S.route = rb.dataset.route; save(); renderRoute();
+  $(S.route === "A" ? "#t4" : "#tB").scrollIntoView({behavior:"smooth", block:"start"});
+});
+document.addEventListener("input", e => {
+  const d = e.target.dataset || {};
+  if (d.req !== undefined){ (S.breq = S.breq || {})[d.req] = e.target.checked; save(); renderRoute(); }
+  if (d.bt !== undefined){ (S.btests = S.btests || {})[d.bt] = e.target.value; save(); }
+});
+$$("[data-req]").forEach(el => { el.checked = !!(S.breq || {})[el.dataset.req]; });
+$$("[data-bt]").forEach(el => { el.value = (S.btests || {})[el.dataset.bt] || ""; });
+
+/* assemble the full program, adding braces from the depth changes */
+function assemble(T, cur){
+  const out = []; const stack = [];
+  const items = T.rows.filter(r => r.k !== "note");
+  const pad = d => "    ".repeat(d);
+  const closeTo = d => { while (stack.length && stack[stack.length - 1] >= d){ const x = stack.pop(); out.push({txt: pad(x) + "}", brace: true}); } };
+  items.forEach((r, i) => {
+    if (r.k === "blank"){
+      const next = items.slice(i + 1).find(x => x.k !== "blank");
+      if (next) closeTo(next.d);
+      out.push({txt: ""}); return;
+    }
+    closeTo(r.d);
+    let line;
+    if (r.k === "given") line = {txt: pad(r.d) + r.code, given: true};
+    else if (isRight(r)) line = {txt: pad(r.d) + matched(r, S.ans[r.key]), mine: true};
+    else line = {txt: pad(r.d) + `// line ${r.no}: ${plain(r.task)}`, ph: true, cur: T.lines.indexOf(r) === cur};
+    out.push(line);
+    const next = items.slice(i + 1).find(x => x.k !== "blank");
+    if (next && next.d > r.d){ out.push({txt: pad(r.d) + "{", brace: true}); stack.push(r.d); }
+  });
+  closeTo(0);
+  return out;
+}
+const plain = h => { const d = document.createElement("div"); d.innerHTML = h; let t = d.textContent.replace(/\s+/g, " ").trim(); return t.length > 70 ? t.slice(0, 67) + "…" : t; };
+function hl(src){
+  return tokensWithSpace(src).map(([t, kind]) => kind ? `<span class="${kind}">${esc(t)}</span>` : esc(t)).join("");
+}
+function tokensWithSpace(src){
+  const out = []; const re = /("(?:[^"\\]|\\.)*"?|'(?:[^'\\]|\\.)*'?)|([A-Za-z_][A-Za-z0-9_]*)|(\d+(?:\.\d+)?)|(\s+)|(.)/g; let m;
+  while ((m = re.exec(src))){
+    if (m[1]) out.push([m[1], "s"]);
+    else if (m[2]){ const w = m[2], after = src.slice(re.lastIndex).trimStart();
+      out.push([w, KW.has(w) ? "k" : (w === "Console" || w === "System" || w === "Program") ? "t" : after[0] === "(" ? "f" : ""]); }
+    else if (m[3]) out.push([m[3], "n"]);
+    else out.push([m[0], ""]);
+  }
+  return out;
+}
+function renderCode(T, cur){
+  const lines = assemble(T, cur);
+  $(`#code-${T.id}-view`).innerHTML = lines.map((l, i) =>
+    `<div class="cl${l.cur ? " cur" : ""}"><span class="g">${i + 1}</span><span class="src">${l.brace ? `<span class="br">${esc(l.txt)}</span>` : l.ph ? `<span class="ph">${esc(l.txt)}</span>` : hl(l.txt)}</span></div>`).join("");
+}
+function codeText(T){ return assemble(T, -1).map(l => l.txt).join("\n") + "\n"; }
+
+/* ============================================================ interaction */
+function doCheck(key, moveOn){
+  const [T, r] = findLine(key), inp = $("#in-" + key), fb = $("#fb-" + key), row = $("#row-" + key);
+  S.ans[key] = inp.value; save();
+  const res = check(r, inp.value);
+  fb.innerHTML = res.msg; fb.className = "fb " + (res.ok ? "good" : "bad");
+  row.classList.toggle("wrong", !res.ok); row.classList.toggle("right", res.ok);
+  if (!res.ok){ S.tries[key] = (S.tries[key] || 0) + 1; save(); if (S.tries[key] >= 3 && r.hint) $("#hint-" + key).hidden = false; }
+  renderTask(T);
+  if (res.ok && moveOn){
+    const nx = T.lines[T.lines.indexOf(r) + 1];
+    if (nx && !isRight(nx)) setTimeout(() => $("#in-" + nx.key).focus(), 60);
+  }
+}
+document.addEventListener("click", e => {
+  const c = e.target.closest("[data-check]"); if (c) doCheck(c.dataset.check, true);
+  const h = e.target.closest("[data-hint]"); if (h){ const b = $("#hint-" + h.dataset.hint); b.hidden = !b.hidden; }
+  const m = e.target.closest("[data-model]"); if (m) model(m.dataset.model);
+  const cp = e.target.closest("[data-copy]"); if (cp) copyCode(cp);
+  const rn = e.target.closest("[data-run]"); if (rn){ const T = TASKS.find(t => t.id === rn.dataset.run); $("#out-" + T.id).textContent = T.run($("#try-in-" + T.id).value.split("\n")); }
+});
+document.addEventListener("keydown", e => {
+  if (e.key === "Enter" && e.target.id && e.target.id.startsWith("in-t") && e.target.tagName === "INPUT"){ e.preventDefault(); doCheck(e.target.id.slice(3), true); }
+});
+document.addEventListener("input", e => {
+  if (e.target.tagName === "INPUT" && e.target.id.startsWith("in-t")){
+    const key = e.target.id.slice(3), [T] = findLine(key);
+    if (isRight(findLine(key)[1]) && !check(findLine(key)[1], e.target.value).ok){ S.ans[key] = e.target.value; save(); $("#fb-" + key).textContent = ""; renderTask(T); }
+  }
+});
+/* teacher: type the model answer live, one character at a time */
+function model(key){
+  const [, r] = findLine(key), inp = $("#in-" + key);
+  if (inp.disabled) return;
+  const full = r.code; let i = 0; inp.value = ""; inp.focus();
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const step = () => { i += reduce ? full.length : 1; inp.value = full.slice(0, i); if (i < full.length) setTimeout(step, 45); else doCheck(key, true); };
+  step();
+}
+async function copyCode(btn){
+  const T = TASKS.find(t => t.id === btn.dataset.copy), txt = codeText(T);
+  try { await navigator.clipboard.writeText(txt); btn.textContent = "Copied ✓"; }
+  catch (e) {
+    const r = document.createRange(); r.selectNodeContents($(`#code-${T.id}-view`)); const s = getSelection(); s.removeAllRanges(); s.addRange(r);
+    btn.textContent = "Selected: press Ctrl+C";
+  }
+  setTimeout(() => btn.textContent = "Copy code", 2500);
+}
+/* ============================================================ trace tables (compulsory) */
+function TR(T){ return (T.traces || []).map((tr, k) => Object.assign({tid: `${T.id}x${k}`, task: T}, tr)); }
+function allTR(){ return TASKS.flatMap(TR); }
+function traceHtml(T){
+  return TR(T).map(tr => {
+    const n = tr.rows.length + (T.spare || 0);
+    const cell = (id, label, val) => val !== undefined
+      ? `<input type="text" id="${id}" value="${esc(val)}" readonly class="givencell" aria-label="${esc(label)}">`
+      : `<input type="text" id="${id}" data-tr="${tr.tid}" spellcheck="false" autocomplete="off" aria-label="${esc(label)}">`;
+    let h = `<details class="trace" id="trace-${tr.tid}" open><summary>${esc(tr.name)} <span class="pill must">COMPULSORY</span><span class="tbadge" id="tbadge-${tr.tid}"></span></summary><div class="tbody">`
+      + `<div class="tdata">${esc(tr.data)}</div><p class="howto" style="margin:0">${esc(tr.note)} Leave a row blank if the loop never gets there. True/False can be typed in any case.</p>`
+      + `<div class="tscroll"><table class="tt"><thead><tr>${tr.cols.map(c => `<th>${esc(c)}</th>`).join("")}</tr></thead><tbody>`;
+    for (let i = 0; i < n; i++){
+      const given = (tr.given || []).includes(i);
+      h += `<tr>${tr.cols.map((c, j) => `<td>${cell(`tc-${tr.tid}-${i}-${j}`, `Row ${i + 1}, ${c}`, given ? tr.rows[i][j] : undefined)}</td>`).join("")}</tr>`;
+    }
+    h += `</tbody></table></div>`
+      + `<div class="tout"><label for="to-${tr.tid}">Output:</label><input type="text" id="to-${tr.tid}" data-tr="${tr.tid}" spellcheck="false" autocomplete="off"></div>`
+      + `<div class="bar" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><button class="btn" type="button" data-trcheck="${tr.tid}">Check my trace</button><span class="fb" id="tfb-${tr.tid}" aria-live="polite"></span></div></div></details>`;
+    return h;
+  }).join("") + (T.traces ? `<p class="howto" style="margin-top:10px">Why does Trace A have fewer rows than Trace B? Talk to your partner.</p>` : "");
+}
+const tnorm = v => { v = String(v || "").trim().replace(/^"|"$/g, ""); if (/^(true|false)$/i.test(v)) v = v.toLowerCase(); if (v === "-" || v === "–") v = ""; return v; };
+function traceCells(tr){
+  const list = [], n = tr.rows.length + (tr.task.spare || 0);
+  for (let i = 0; i < n; i++){ if ((tr.given || []).includes(i)) continue; tr.cols.forEach((_, j) => list.push([`tc-${tr.tid}-${i}-${j}`, i < tr.rows.length ? tr.rows[i][j] : ""])); }
+  list.push([`to-${tr.tid}`, tr.output]);
+  return list;
+}
+function checkTrace(tr, mark){
+  const cells = traceCells(tr); let ok = 0;
+  cells.forEach(([id, ans]) => {
+    const el = $("#" + id), v = (S.trace[tr.tid] || {})[id] || "", good = tnorm(v) === tnorm(ans);
+    if (good) ok++;
+    if (mark){ el.classList.toggle("right", good); el.classList.toggle("wrong", !good && (v.trim() !== "" || tnorm(ans) !== "")); }
+  });
+  return [ok, cells.length];
+}
+function tracesDone(T){ return (T2 => { S.trace = S.trace || {}; return TR(T).every(tr => { const [ok, n] = checkTrace(tr, false); return ok === n; }); })(T); }
+function renderTrace(T){
+  S.trace = S.trace || {};
+  TR(T).forEach(tr => {
+    const st = S.trace[tr.tid] || {};
+    traceCells(tr).forEach(([id]) => { const el = $("#" + id); if (document.activeElement !== el) el.value = st[id] || ""; });
+    const b = $("#tbadge-" + tr.tid);
+    if (st._checked){ const [ok, n] = checkTrace(tr, true); b.textContent = ok === n ? "✓ Trace correct" : `${ok} of ${n} cells right`; b.className = "tbadge" + (ok === n ? " done" : ""); }
+    else { b.textContent = Object.keys(st).length ? "Not checked yet" : "Not started"; b.className = "tbadge"; }
+  });
+}
+document.addEventListener("input", e => {
+  const id = e.target.dataset && e.target.dataset.tr; if (!id) return;
+  S.trace = S.trace || {}; S.trace[id] = S.trace[id] || {}; S.trace[id][e.target.id] = e.target.value;
+  e.target.classList.remove("right", "wrong"); save();
+});
+document.addEventListener("click", e => {
+  const b = e.target.closest("[data-trcheck]"); if (!b) return;
+  const tr = allTR().find(t => t.tid === b.dataset.trcheck);
+  S.trace = S.trace || {}; S.trace[tr.tid] = S.trace[tr.tid] || {}; S.trace[tr.tid]._checked = true; save();
+  const [ok, n] = checkTrace(tr, true), fb = $("#tfb-" + tr.tid);
+  fb.textContent = ok === n ? "✓ Every cell is right." : `${ok} of ${n} right. Fix the red cells and check again. Rows after the loop stops should be left blank.`;
+  fb.className = "fb " + (ok === n ? "good" : "bad");
+  renderTrace(tr.task); renderTask(tr.task);
+});
+document.addEventListener("keydown", e => { if (e.key === "Enter" && e.target.dataset && e.target.dataset.tr){ e.preventDefault(); $(`[data-trcheck="${e.target.dataset.tr}"]`).click(); } });
+
+/* name + class */
+["who", "cls"].forEach(id => { const el = $("#" + id); el.value = S[id] || ""; el.addEventListener("input", () => { S[id] = el.value; save(); }); });
+
+const foot = document.createElement("div"); foot.className = "status";
+foot.innerHTML = `<span>Your answers save in this browser on this device.</span><button class="btn ghost" type="button" id="wipe">Start again</button><span id="wipeask" hidden>Clear your route, every line, the checklist, the test plan and both trace tables? <button class="btn" type="button" id="wipeyes">Yes, clear</button> <button class="btn ghost" type="button" id="wipeno">Cancel</button></span>`;
+app.appendChild(foot);
+$("#wipe").onclick = () => $("#wipeask").hidden = false;
+$("#wipeno").onclick = () => $("#wipeask").hidden = true;
+$("#wipeyes").onclick = () => { S = {ans:{}, unlocked:["1"], tries:{}, trace:{}}; $$("[data-req]").forEach(x => x.checked = false); $$("[data-bt]").forEach(x => x.value = ""); $$("details.trace input").forEach(i => i.classList.remove("right","wrong")); $$("[id^=tfb-]").forEach(x => x.textContent = ""); try { localStorage.removeItem(KEY); } catch (e) {} TASKS.forEach(T => T.lines.forEach(r => { $("#fb-" + r.key).textContent = ""; $("#hint-" + r.key).hidden = true; $("#row-" + r.key).classList.remove("wrong"); })); $("#wipeask").hidden = true; renderAll(); };
+
+renderAll();
+</script>
+</body>
+</html>
